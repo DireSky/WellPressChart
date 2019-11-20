@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 
 
 namespace WellPressChart
 {
-    class Well : INotifyPropertyChanged
+    internal class Well : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged(string propertyName)
@@ -22,10 +17,7 @@ namespace WellPressChart
         public int ID { get; set; }
         public double Density
         {
-            get
-            {
-                return density;
-            }
+            get => density;
             set
             {
                 density = value;
@@ -34,10 +26,7 @@ namespace WellPressChart
         }
         public double Height
         {
-            get
-            {
-                return height;
-            }
+            get => height;
             set
             {
                 height = value;
@@ -46,11 +35,13 @@ namespace WellPressChart
         }
         private const double G = 9.81;
         public SortedList<double, double> PressForHeightMark = new SortedList<double, double>();
-        //internal List<double> PressForHeightMark = new List<double>();
         public void PressureCalculation(int iterations)
         {
             PressForHeightMark.Clear();
-            for (int i = 0; i < iterations; i++) PressForHeightMark.Add(((Height * i)/iterations), (Density * ((Height * i) / iterations) * G));
+            for (int i = 0; i <= iterations; i++)
+            {
+                PressForHeightMark.Add((Height * i / iterations), (Density * ((Height * i) / iterations) * G));
+            }
         }
         public Well(int ID, double Density, double Height) { this.ID = ID; this.Density = Density; this.Height = Height; }
     }

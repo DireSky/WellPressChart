@@ -1,28 +1,32 @@
-﻿using System;
-using System.Collections;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
-using System.ComponentModel;
-using System.Windows.Input;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using LiveCharts;
-using LiveCharts.Wpf;
+﻿using LiveCharts;
 using LiveCharts.Configurations;
-using LiveCharts.Defaults;
+using LiveCharts.Wpf;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace WellPressChart.ViewModel
 {
-    class WindowVM : INotifyPropertyChanged
+    internal class WindowVM : INotifyPropertyChanged
     {
 
         public double Density { get; set; }
         public double Height { get; set; }
         public int Iterations { get; set; }
         public double ProgressValue { get; set; }
-        public string LaunchButtonText { get; set; } = "Запуск";
+        private string launchButtonText = "Запуск";
+        public string LaunchButtonText
+        {
+            get => launchButtonText;
+            set
+            {
+                launchButtonText = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LaunchButtonText)));
+            }
+        }
         public bool WorkCondition { get; set; } = false;
         private Well selectedWell = new Well(1, 1.0, 1.0);
         public ObservableCollection<Well> Wells { get; set; }
@@ -34,37 +38,30 @@ namespace WellPressChart.ViewModel
             {
 
             };
-        }   
+        }
         private RelayCommand addCommand;
-        public RelayCommand AddCommand
-        {
-            get
-            {
-                return addCommand ??
+        public RelayCommand AddCommand => addCommand ??
                 (addCommand = new RelayCommand(obj =>
                 {
                     Well well = new Well(Wells.Count + 1, Density, Height);
                     Wells.Insert(0, well);
                     SelectedWell = well;
                 }));
-            }
-        }
         private RelayCommand launch;
-        public RelayCommand Launch
-        {
-            get
-            {
-                return launch ??
+        public RelayCommand Launch => launch ??
                 (launch = new RelayCommand(obj =>
                 {
-                    StartCalculationsAsync();
                     WorkCondition = !WorkCondition;
-                    LaunchButtonText = WorkCondition ? "Запуск" : "Остановить";
+                    if (WorkCondition)
+                    {
+                        StartCalculationsAsync();
+                    }
+
+                    LaunchButtonText = WorkCondition ? "Остановить" : "Запуск";
                     OnPropertyChanged(nameof(LaunchButtonText));
                 }));
-            }
-        }
-        async void StartCalculationsAsync()
+
+        private async void StartCalculationsAsync()
         {
             await Task.Run(() => Counting());
         }
@@ -78,19 +75,24 @@ namespace WellPressChart.ViewModel
                 {
                     well.PressureCalculation(Iterations);
                     ++i;
-                    ProgressValue = (100 / Wells.Count) * i;
+                    ProgressValue = (100 / (Wells.Count * 1.0)) * i;
                     System.Threading.Thread.Sleep(1000);
                     OnPropertyChanged(nameof(ProgressValue));
                 }
-                else return;
-            }
+            };
+            LaunchButtonText = "Запуск";
         }
+
         public Well SelectedWell
         {
-            get { return selectedWell; }
+            get => selectedWell;
             set
             {
-                if (selectedWell == value) return;
+                if (selectedWell == value)
+                {
+                    return;
+                }
+
                 selectedWell = value;
                 ChartPressure();
                 OnPropertyChanged(nameof(SelectedWell));
@@ -98,18 +100,16 @@ namespace WellPressChart.ViewModel
         }
         public void ChartPressure()
         {
-            var mapper = Mappers.Xy<double>()
-                .X((value, index) => value) //use the value as X
-                .Y((value, index) => index); //use the index as Y
-            SeriesViews = new SeriesCollection
+            CartesianMapper<KeyValuePair<double, double>> mapper = Mappers.Xy<KeyValuePair<double, double>>().X(value => value.Key).Y(value => value.Value);
+            SeriesViews = new SeriesCollection(mapper)
             {
                 new LineSeries
-                { 
-                    //Values = new ChartValues<double>{1, 2, 5, 4}
-                    Values = new ChartValues<double>(SelectedWell.PressForHeightMark.Values)
+                {
+                    Values = new ChartValues<KeyValuePair<double, double>>(SelectedWell.PressForHeightMark)
                 }
             };
-            OnPropertyChanged(nameof(SeriesViews)); 
+            OnPropertyChanged(nameof(SeriesViews));
+
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged(string propertyName)
@@ -119,8 +119,8 @@ namespace WellPressChart.ViewModel
     }
     public class RelayCommand : ICommand
     {
-        private Action<object> execute;
-        private Func<object, bool> canExecute;
+        private readonly Action<object> execute;
+        private readonly Func<object, bool> canExecute;
 
         public event EventHandler CanExecuteChanged
         {
@@ -136,11 +136,11 @@ namespace WellPressChart.ViewModel
 
         public bool CanExecute(object parameter)
         {
-            return this.canExecute == null || this.canExecute(parameter);
+            return canExecute == null || canExecute(parameter);
         }
         public void Execute(object parameter)
         {
-            this.execute(parameter);
+            execute(parameter);
         }
     }
 }

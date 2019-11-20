@@ -34,9 +34,9 @@
                     <ColumnDefinition Width="0.1*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" FontSize="8" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5,0,0,0">Высота</TextBlock>
-                <TextBox Name="Height" Grid.Column="0" Margin="5,10,5,5" Text="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox Name="Height" Grid.Column="0" Margin="5,10,5,5" Text="{Binding Height, Mode = OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBlock Grid.Column="1" FontSize="8" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5,0,0,0">Плотность</TextBlock>
-                <TextBox Name="Density" Grid.Column="1" Margin="5,10,5,5" Text="{Binding Density, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox Name="Density" Grid.Column="1" Margin="5,10,5,5" Text="{Binding Density, Mode = OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
             <StackPanel Grid.Column="1">
                 <Button Margin="5" Command="{Binding AddCommand}">Добавить</Button>
