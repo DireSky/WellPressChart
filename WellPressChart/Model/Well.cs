@@ -11,7 +11,6 @@ namespace WellPressChart
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
         private double density;
         private double height;
         public int ID { get; set; }
@@ -35,12 +34,12 @@ namespace WellPressChart
         }
         private const double G = 9.81;
         public SortedList<double, double> PressForHeightMark = new SortedList<double, double>();
-        public void PressureCalculation(int iterations)
+        public void PressureCalculation(int iterations) //p=ρgh
         {
             PressForHeightMark.Clear();
             for (int i = 0; i <= iterations; i++)
             {
-                PressForHeightMark.Add((Height * i / iterations), (Density * ((Height * i) / iterations) * G));
+                PressForHeightMark.Add((Height * i / iterations), (Density * ((Height * i) / iterations) * G));//HeightMark, PressForHeightMark
             }
         }
         public Well(int ID, double Density, double Height) { this.ID = ID; this.Density = Density; this.Height = Height; }

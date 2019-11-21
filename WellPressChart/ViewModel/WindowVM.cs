@@ -56,7 +56,6 @@ namespace WellPressChart.ViewModel
                     {
                         StartCalculationsAsync();
                     }
-
                     LaunchButtonText = WorkCondition ? "Остановить" : "Запуск";
                     OnPropertyChanged(nameof(LaunchButtonText));
                 }));
@@ -82,7 +81,6 @@ namespace WellPressChart.ViewModel
             };
             LaunchButtonText = "Запуск";
         }
-
         public Well SelectedWell
         {
             get => selectedWell;
@@ -92,7 +90,6 @@ namespace WellPressChart.ViewModel
                 {
                     return;
                 }
-
                 selectedWell = value;
                 ChartPressure();
                 OnPropertyChanged(nameof(SelectedWell));
@@ -109,7 +106,6 @@ namespace WellPressChart.ViewModel
                 }
             };
             OnPropertyChanged(nameof(SeriesViews));
-
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged(string propertyName)
